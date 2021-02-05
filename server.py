@@ -1,7 +1,7 @@
 """Server for movie ratings app."""
 
 from flask import Flask, render_template, request, flash, session, redirect
-from model import connect_to_db
+from model import connect_to_db, Movie
 import crud
 from jinja2 import StrictUndefined
 
@@ -22,6 +22,35 @@ def all_movies():
     movies = crud.get_all_movies()
 
     return render_template("all_movies.html", movies=movies)
+
+@app.route('/movies/<int:movie_id>')
+def show_movie(movie_id):
+    """Show details for a movie."""
+    
+    # next_movie_id = movie_id + 1 #TypeError (str and int)
+
+    # Below: SQLAlchemy equality is True
+    movie = crud.get_movie_by_id(movie_id)
+    # print("#" * 100)
+    # print(movie.movie_id == movie_id) #Python is False
+
+    return render_template("movie_details.html", movie=movie)
+
+
+@app.route('/users')
+def all_users():
+    """Display all users."""
+    users = crud.get_all_users()
+
+    return render_template("all_users.html", users=users)
+
+
+@app.route('/users/<int:user_id>')
+def show_user(user_id):
+    """Show details for a user"""
+    user = crud.get_user_by_id(user_id)
+
+    return render_template("user_details.html", user=user)
 
 if __name__ == '__main__':
     connect_to_db(app)
