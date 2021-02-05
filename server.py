@@ -45,12 +45,47 @@ def all_users():
     return render_template("all_users.html", users=users)
 
 
+@app.route('/users', methods=['POST'])
+def create_account():
+    """Create a new user account."""
+
+    password = request.form.get('password')
+    email = request.form.get('email')
+
+    if crud.get_user_by_email(email) != None:
+        flash('Email exists. Please sign up with a different email.')
+    else:
+        crud.create_user(email, password)
+        flash('Account created successfully!')
+
+    return redirect('/')
+
+
 @app.route('/users/<int:user_id>')
 def show_user(user_id):
     """Show details for a user"""
     user = crud.get_user_by_id(user_id)
 
     return render_template("user_details.html", user=user)
+
+@app.route('/login', methods=['POST'])
+def log_in_user():
+    """Login user and redirect to homepage."""
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    user_object = crud.get_user_by_email(email)
+
+    if user_object != None:
+        if password == user_object.password != None:
+            session['user_id'] = user_object.user_id
+            flash('Logged in!')
+        else:
+            flash('Incorrect password')   
+    else:
+        flash('Email does not exist. Please sign up above.')
+
+    return redirect('/')
 
 if __name__ == '__main__':
     connect_to_db(app)
